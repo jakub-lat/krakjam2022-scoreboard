@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"gorm.io/gorm"
 	"krakjam2022_scoreboard/pkg/database"
 	"krakjam2022_scoreboard/pkg/utils"
 )
@@ -109,13 +110,28 @@ func (r *Rest) PostLevel(c echo.Context) error {
 		return echo.NewHTTPError(401, "Unauthorized")
 	}
 
-	if err := r.db.Create(body).Error; err != nil {
+	existingLevel := &database.GameRunLevel{}
+	err = r.db.Model(&database.GameRunLevel{}).Where("level = ?", body.Level).First(existingLevel).Error
+	if err == gorm.ErrRecordNotFound {
+		if err := r.db.Create(body).Error; err != nil {
+			return err
+		}
+	} else if err != nil {
 		return err
+	} else {
+		body.ID = existingLevel.ID
+		if err := r.db.Save(body).Error; err != nil {
+			return err
+		}
 	}
 
 	run.Deaths += body.Deaths
 	run.Kills += body.Kills
 	run.Headshots += body.Headshots
+
+	if err := r.db.Save(run).Error; err != nil {
+		return err
+	}
 
 	return c.NoContent(200)
 }
