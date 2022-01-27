@@ -29,6 +29,7 @@ type GameRun struct {
 	Kills      int            `json:"kills"`
 	Headshots  int            `json:"headshots"`
 	Deaths     int            `json:"deaths"`
+	Score      int            `json:"score"`
 	Levels     []GameRunLevel `json:"levels"`
 }
 
@@ -37,9 +38,10 @@ type GameRunLevel struct {
 	ID         int64 `json:"id"`
 	GameRunID  int64 `json:"gameRunID"`
 	Level      int   `json:"level"`
+	StartTime  int64 `json:"startTime"`
+	EndTime    int64 `json:"endTime"`
 	Kills      int   `json:"kills"`
 	Headshots  int   `json:"headshots"`
 	Deaths     int   `json:"deaths"`
-	StartTime  int64 `json:"startTime"`
-	EndTime    int64 `json:"endTime"`
+	Score      int   `json:"score"`
 }
