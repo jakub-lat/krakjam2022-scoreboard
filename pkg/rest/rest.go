@@ -22,7 +22,7 @@ func New(db *database.DB, secretKey string) *Rest {
 
 	r.e.HTTPErrorHandler = func(err error, c echo.Context) {
 		fmt.Println(err)
-		c.JSON(500, "sth went wrong")
+		_ = c.JSON(500, "sth went wrong")
 	}
 
 	r.e.GET("", r.GetTopScores)
@@ -81,7 +81,7 @@ func (r *Rest) PostRun(c echo.Context) error {
 
 	body.PlayerID = p.ID
 
-	err = r.db.Create(body).Error
+	err = r.db.Save(body).Error
 	if err != nil {
 		return err
 	}
