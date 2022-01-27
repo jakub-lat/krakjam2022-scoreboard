@@ -86,7 +86,7 @@ func (r *Rest) PostRun(c echo.Context) error {
 		return err
 	}
 
-	return nil
+	return c.JSON(200, body)
 }
 
 func (r *Rest) PostLevel(c echo.Context) error {
