@@ -176,8 +176,8 @@ func (r *Rest) ClearAllData(c echo.Context) error {
 		return echo.NewHTTPError(401, "Unauthorized")
 	}
 
-	r.db.Delete(&database.Player{})
-	r.db.Delete(&database.GameRun{})
-	r.db.Delete(&database.GameRunLevel{})
+	r.db.Where("1 = 1").Delete(&database.Player{})
+	r.db.Where("1 = 1").Delete(&database.GameRun{})
+	r.db.Where("1 = 1").Delete(&database.GameRunLevel{})
 	return c.JSON(200, "ok")
 }
