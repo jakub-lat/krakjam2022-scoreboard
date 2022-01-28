@@ -162,5 +162,9 @@ func (r *Rest) GetTopScores(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(200, res)
+
+	data := struct {
+		List []database.Player `json:"list"`
+	}{res}
+	return c.JSON(200, data)
 }
