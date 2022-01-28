@@ -46,4 +46,5 @@ type GameRunLevel struct {
 	Deaths     int    `json:"deaths"`
 	Score      int    `json:"score"`
 	Player     Player `json:"player"`
+	Position   int    `json:"position"`
 }

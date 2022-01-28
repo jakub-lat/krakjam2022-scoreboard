@@ -78,6 +78,8 @@ func (r *Rest) PostLevel(c echo.Context) error {
 		return echo.NewHTTPError(401, "Unauthorized")
 	}
 
+	body.PlayerID = p.ID
+
 	existingLevel := &database.GameRunLevel{}
 	err = r.db.Model(&database.GameRunLevel{}).Where("level = ?", body.Level).First(existingLevel).Error
 	if err == gorm.ErrRecordNotFound {
@@ -101,5 +103,5 @@ func (r *Rest) PostLevel(c echo.Context) error {
 		return err
 	}
 
-	return c.NoContent(200)
+	return c.JSON(200, body)
 }
