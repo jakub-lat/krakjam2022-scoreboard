@@ -79,6 +79,7 @@ func (r *Rest) PostLevel(c echo.Context) error {
 	}
 
 	body.PlayerID = p.ID
+	body.Player = nil
 
 	existingLevel := &database.GameRunLevel{}
 	err = r.db.Model(&database.GameRunLevel{}).Where("level = ?", body.Level).First(existingLevel).Error
@@ -94,6 +95,8 @@ func (r *Rest) PostLevel(c echo.Context) error {
 			return err
 		}
 	}
+
+	body.Player = p
 
 	run.Deaths += body.Deaths
 	run.Kills += body.Kills

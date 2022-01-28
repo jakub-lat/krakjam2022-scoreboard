@@ -55,7 +55,8 @@ func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 		return err
 	}
 
-	err = r.db.Raw(`SELECT DISTINCT ON ("player_id") *, ROW_NUMBER () OVER (ORDER BY score desc) AS position FROM "game_run_levels" WHERE level = ? AND "game_run_levels"."deleted_at" IS NULL ORDER BY player_id, score desc, id LIMIT ?`, id, limit).Find(&res).Error
+	err = r.db.Preload("Player").Raw(`SELECT DISTINCT ON ("player_id") *, ROW_NUMBER () OVER (ORDER BY score desc) AS position FROM "game_run_levels" WHERE level = ? AND "game_run_levels"."deleted_at" IS NULL ORDER BY player_id, score desc, id LIMIT ?`, id, limit).
+		Find(&res).Error
 	if err != nil {
 		return err
 	}
