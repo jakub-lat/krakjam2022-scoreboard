@@ -49,7 +49,7 @@ func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 	}
 
 	id := c.Param("id")
-	limitStr := c.Param("limit")
+	limitStr := c.QueryParam("limit")
 	limit, err := strconv.Atoi(limitStr)
 	if err != nil {
 		return err
