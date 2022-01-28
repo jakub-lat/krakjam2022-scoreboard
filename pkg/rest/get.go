@@ -59,7 +59,7 @@ func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 		Preload("Player").
 		Distinct("player_id").
 		Order("player_id, score desc, id").
-		Where("level_id = ?", id).
+		Where("level = ?", id).
 		Limit(limit).
 		Find(&res).Error
 	if err != nil {
