@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"krakjam2022_scoreboard/pkg/database"
 	"krakjam2022_scoreboard/pkg/utils"
+	"os"
 )
 
 type Rest struct {
@@ -31,6 +32,7 @@ func New(db *database.DB, secretKey string) *Rest {
 	r.e.GET("/player", r.GetCurrPlayerStats)
 	r.e.POST("/run", r.PostRun)
 	r.e.POST("/level", r.PostLevel)
+	r.e.GET("/clearalldata", r.ClearAllData)
 
 	return r
 }
@@ -167,4 +169,15 @@ func (r *Rest) GetTopScores(c echo.Context) error {
 		List []database.Player `json:"list"`
 	}{res}
 	return c.JSON(200, data)
+}
+
+func (r *Rest) ClearAllData(c echo.Context) error {
+	if c.QueryParam("asdf") != os.Getenv("CLEAR_ALL_DATA_KEY") {
+		return echo.NewHTTPError(401, "Unauthorized")
+	}
+
+	r.db.Delete(&database.Player{})
+	r.db.Delete(&database.GameRun{})
+	r.db.Delete(&database.GameRunLevel{})
+	return c.JSON(200, "ok")
 }
