@@ -82,7 +82,7 @@ func (r *Rest) PostLevel(c echo.Context) error {
 	body.Player = nil
 
 	existingLevel := &database.GameRunLevel{}
-	err = r.db.Model(&database.GameRunLevel{}).Where("level = ? AND player_id = ?", body.Level, p.ID).First(existingLevel).Error
+	err = r.db.Model(&database.GameRunLevel{}).Where("level = ? AND player_id = ? AND game_run_id = ?", body.Level, p.ID, run.ID).First(existingLevel).Error
 	if err == gorm.ErrRecordNotFound {
 		if err := r.db.Create(body).Error; err != nil {
 			return err
