@@ -101,6 +101,7 @@ func (r *Rest) PostLevel(c echo.Context) error {
 	run.Deaths += body.Deaths
 	run.Kills += body.Kills
 	run.Headshots += body.Headshots
+	run.Score += body.Score
 	run.Level = body.Level
 
 	if err := r.db.Save(run).Error; err != nil {
