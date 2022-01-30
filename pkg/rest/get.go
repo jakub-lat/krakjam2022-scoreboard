@@ -5,6 +5,7 @@ import (
 	"krakjam2022_scoreboard/pkg/database"
 	"krakjam2022_scoreboard/pkg/utils"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -73,11 +74,17 @@ func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 		return err
 	}
 
-	err = r.db.Preload("Player").Raw(`SELECT DISTINCT ON ("player_id") *, ROW_NUMBER () OVER (ORDER BY score desc) AS position FROM "game_run_levels" WHERE level = ? AND "game_run_levels"."deleted_at" IS NULL ORDER BY score desc, player_id, id LIMIT ?`, id, limit).
+	err = r.db.Preload("Player").Raw(`SELECT DISTINCT ON ("player_id") *, ROW_NUMBER () OVER (ORDER BY score desc) AS position FROM "game_run_levels" WHERE level = ? AND "game_run_levels"."deleted_at" IS NULL ORDER BY score desc, player_id, id`, id).
 		Find(&res).Error
 	if err != nil {
 		return err
 	}
+
+	sort.SliceStable(res, func(i, j int) bool {
+		return res[i].Score > res[j].Score
+	})
+
+	res = res[:limit-1]
 
 	player := &database.GameRunLevel{}
 	err = r.db.Preload("Player").Order("score desc").Where("player_id = ?", p.ID).First(player).Error
@@ -106,11 +113,18 @@ func (r *Rest) GetTop(c echo.Context) error {
 	}
 
 	var res []database.GameRun
-	err = r.db.Preload("Player").Raw(`SELECT DISTINCT ON ("player_id") *, ROW_NUMBER () OVER (ORDER BY score desc) AS position FROM "game_runs" WHERE level = ? AND "game_runs"."deleted_at" IS NULL ORDER BY score desc, player_id, id LIMIT ?`, os.Getenv("MAX_LEVELS"), limit).
+	err = r.db.Preload("Player").Raw(`SELECT DISTINCT ON ("player_id") *, ROW_NUMBER () OVER (ORDER BY score desc) AS position FROM "game_runs" WHERE level = ? AND "game_runs"."deleted_at" IS NULL ORDER BY score desc, player_id, id`, os.Getenv("MAX_LEVELS")).
 		Find(&res).Error
+
 	if err != nil {
 		return err
 	}
+
+	sort.SliceStable(res, func(i, j int) bool {
+		return res[i].Score > res[j].Score
+	})
+
+	res = res[:limit-1]
 
 	player := &database.GameRun{}
 	err = r.db.Preload("Player").Order("score desc, id").Where("player_id = ?", p.ID).First(player).Error
