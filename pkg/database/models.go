@@ -21,8 +21,10 @@ const (
 
 type GameRun struct {
 	gorm.Model `json:"-"`
+	Position   int            `json:"position"`
 	ID         int64          `json:"id"`
 	PlayerID   int64          `json:"playerID"`
+	Player     Player         `json:"player"`
 	Mode       int            `json:"mode"`
 	StartTime  int64          `json:"startTime"`
 	EndTime    int64          `json:"endTime"`
@@ -30,6 +32,7 @@ type GameRun struct {
 	Headshots  int            `json:"headshots"`
 	Deaths     int            `json:"deaths"`
 	Score      int            `json:"score"`
+	Level      int            `json:"level"`
 	Levels     []GameRunLevel `json:"levels"`
 }
 

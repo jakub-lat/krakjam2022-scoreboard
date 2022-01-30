@@ -24,11 +24,13 @@ func New(db *database.DB, secretKey string) *Rest {
 		_ = c.JSON(500, "sth went wrong")
 	}
 
-	r.e.GET("", r.GetTopScores)
+	r.e.GET("", r.GetAll)
+	r.e.GET("/top", r.GetTop)
 	r.e.POST("/register", r.Register)
 	r.e.GET("/player/:id", r.GetPlayerStats)
 	r.e.GET("/player", r.GetCurrPlayerStats)
 	r.e.POST("/run", r.PostRun)
+	r.e.GET("/run/:id", r.GetRun)
 	r.e.POST("/level", r.PostLevel)
 	r.e.GET("/level/:id", r.GetTopScoresForLevel)
 	r.e.GET("/clearalldata", r.ClearAllData)
