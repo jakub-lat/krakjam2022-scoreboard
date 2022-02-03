@@ -93,10 +93,12 @@ func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 		return err
 	}
 
-	player := &database.GameRunLevel{}
-	err = r.db.Preload("Player").Order("score desc").Where("player_id = ?", p.ID).First(player).Error
-	if err != nil {
-		return err
+	var player *database.GameRunLevel
+	for _, x := range res {
+		if x.Player.ID == p.ID {
+			player = &x
+			break
+		}
 	}
 
 	data := struct {
@@ -140,10 +142,12 @@ func (r *Rest) GetTop(c echo.Context) error {
 		return err
 	}
 
-	player := &database.GameRun{}
-	err = r.db.Preload("Player").Where("player_id = ?", p.ID).Order("score desc, id").First(player).Error
-	if err != nil {
-		return err
+	var player *database.GameRun
+	for _, x := range res {
+		if x.Player.ID == p.ID {
+			player = &x
+			break
+		}
 	}
 
 	data := struct {
