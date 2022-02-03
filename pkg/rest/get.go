@@ -59,17 +59,19 @@ func (r *Rest) GetRun(c echo.Context) error {
 	return c.JSON(200, run)
 }
 
-var levelScoreboardSql = `with q as 
-(select x.*, ROW_NUMBER() OVER (order by score desc) as position 
-	from (select distinct on (player_id) * from game_run_levels order by player_id, score desc) as x
-	where level = @level
-	order by score desc
+var levelScoreboardSql = `with q as (
+	select *, ROW_NUMBER() OVER (order by score desc) as position 
+		from (select distinct on (player_id) * from game_run_levels order by player_id, score desc) as x
+		where level = @level
+		order by score desc
 )
-
-select distinct on (player_id) * from (
-    select * from (select * from q limit @limit) as others
-    union select * from q where player_id = @player_id
-) as res`
+select distinct *
+from 
+(
+	(select * from q limit @limit)
+	UNION ALL 
+	(select * from q where player_id=@player_id order by score desc limit 1)
+) as res order by score desc`
 
 func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 	p, err := utils.Auth(r.db, c)
@@ -104,17 +106,19 @@ func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 	return c.JSON(200, data)
 }
 
-var scoreboardSql = `with q as 
-(select x.*, ROW_NUMBER() OVER (order by score desc) as position 
-	from (select distinct on (player_id) * from game_runs order by player_id, score desc) as x
-	where level = @level
-	order by score desc
+var scoreboardSql = `with q as (
+	select *, ROW_NUMBER() OVER (order by score desc) as position 
+		from (select distinct on (player_id) * from game_runs order by player_id, score desc) as x
+		where level = @level
+		order by score desc
 )
-
-select distinct on (player_id) * from (
-    select * from (select * from q limit @limit) as others
-    union select * from q where player_id = @player_id
-) as res`
+select distinct *
+from 
+(
+	(select * from q limit @limit)
+	UNION ALL 
+	(select * from q where player_id=@player_id order by score desc limit 1)
+) as res order by score desc`
 
 func (r *Rest) GetTop(c echo.Context) error {
 	p, err := utils.Auth(r.db, c)
