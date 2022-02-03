@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"database/sql"
 	"github.com/labstack/echo/v4"
 	"krakjam2022_scoreboard/pkg/database"
 	"krakjam2022_scoreboard/pkg/utils"
@@ -58,11 +59,17 @@ func (r *Rest) GetRun(c echo.Context) error {
 	return c.JSON(200, run)
 }
 
-var levelScoreboardSql = `select x.*, ROW_NUMBER() OVER (order by score desc) as position 
-from (select distinct on (player_id) * from game_run_levels order by player_id, score desc) as x
-where level = ?
-order by score desc
-limit ?`
+var levelScoreboardSql = `with q as 
+(select x.*, ROW_NUMBER() OVER (order by score desc) as position 
+	from (select distinct on (player_id) * from game_run_levels order by player_id, score desc) as x
+	where level = @level
+	order by score desc
+)
+
+select distinct on (player_id) * from (
+    select * from (select * from q limit @limit) as others
+    union select * from q where player_id = @player_id
+) as res`
 
 func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 	p, err := utils.Auth(r.db, c)
@@ -78,7 +85,7 @@ func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 	}
 
 	var res []database.GameRunLevel
-	err = r.db.Preload("Player").Raw(levelScoreboardSql, id, limit).
+	err = r.db.Preload("Player").Raw(levelScoreboardSql, sql.Named("level", id), sql.Named("limit", limit), sql.Named("player_id", p.ID)).
 		Find(&res).Error
 	if err != nil {
 		return err
@@ -97,11 +104,17 @@ func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 	return c.JSON(200, data)
 }
 
-var scoreboardSql = `select x.*, ROW_NUMBER() OVER (order by score desc) as position 
-from (select distinct on (player_id) * from game_runs order by player_id, score desc) as x 
-where level = ?
-order by score desc
-limit ?`
+var scoreboardSql = `with q as 
+(select x.*, ROW_NUMBER() OVER (order by score desc) as position 
+	from (select distinct on (player_id) * from game_runs order by player_id, score desc) as x
+	where level = @level
+	order by score desc
+)
+
+select distinct on (player_id) * from (
+    select * from (select * from q limit @limit) as others
+    union select * from q where player_id = @player_id
+) as res`
 
 func (r *Rest) GetTop(c echo.Context) error {
 	p, err := utils.Auth(r.db, c)
@@ -116,7 +129,7 @@ func (r *Rest) GetTop(c echo.Context) error {
 	}
 
 	var res []database.GameRun
-	err = r.db.Preload("Player").Raw(scoreboardSql, os.Getenv("MAX_LEVELS"), limit).
+	err = r.db.Preload("Player").Raw(scoreboardSql, sql.Named("level", os.Getenv("MAX_LEVELS")), sql.Named("limit", limit), sql.Named("player_id", p.ID)).
 		Find(&res).Error
 
 	if err != nil {
