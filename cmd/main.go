@@ -10,7 +10,9 @@ import (
 )
 
 func run() error {
-	pg, err := gorm.Open(postgres.Open(os.Getenv("POSTGRES_CONN_STRING")), &gorm.Config{})
+	pg, err := gorm.Open(postgres.Open(os.Getenv("POSTGRES_CONN_STRING")), &gorm.Config{
+		//Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return err
 	}
