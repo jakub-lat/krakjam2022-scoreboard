@@ -61,8 +61,7 @@ func (r *Rest) GetRun(c echo.Context) error {
 
 var levelScoreboardSql = `with q as (
 	select *, ROW_NUMBER() OVER (order by score desc) as position 
-		from (select distinct on (player_id) * from game_run_levels order by player_id, score desc) as x
-		where level = @level
+		from (select distinct on (player_id) * from game_run_levels where level = @level) as x
 		order by score desc
 )
 select distinct *
@@ -110,8 +109,7 @@ func (r *Rest) GetTopScoresForLevel(c echo.Context) error {
 
 var scoreboardSql = `with q as (
 	select *, ROW_NUMBER() OVER (order by score desc) as position 
-		from (select distinct on (player_id) * from game_runs order by player_id, score desc) as x
-		where level = @level
+		from (select distinct on (player_id) * from game_runs where level = @level) as x
 		order by score desc
 )
 select distinct *
